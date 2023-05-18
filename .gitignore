@@ -1,2 +1,5 @@
+.env
+*auth0.com*.json
 lib/
+localdata/
 node_modules/

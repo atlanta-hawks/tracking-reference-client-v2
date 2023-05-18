@@ -1,21 +1,26 @@
 {
   "name": "live-data-reference-client",
-  "version": "0.1.0",
+  "version": "0.1.0-hawks.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
     "version": "node -v",
     "build-windows": "del lib && tsc --pretty",
-    "build": "rm -rf lib && tsc --pretty && npm run prettier",
+    "prebuild": "yarn install",
+    "build": "rm -rf lib && tsc --pretty && yarn run prettier",
     "lint": "eslint --ext .ts src",
     "prettier": "prettier --loglevel error --write './src/**/*.ts'",
-    "pkg": "pkg lib/index.js --targets=node16-macos-arm64,node16-macos-x64,node16-win-x64,node16-linux-x64 --out-path dist"
+    "prepkg": "yarn run build",
+    "pkg": "yarn run pkg:only",
+    "pkg:only": "pkg lib/2s.js --targets=node16-macos-arm64,node16-macos-x64,node16-linux-x64,node16-win-x64 --out-path lib/bin"
   },
   "author": "Second Spectrum",
   "license": "UNLICENSCED",
   "dependencies": {
+    "@google-cloud/storage": "^6.10.1",
     "async": "^3.2.4",
     "axios": "~0.21.1",
+    "dotenv": "^16.0.3",
     "graceful-fs": "^4.2.10",
     "path": "~0.12.7",
     "websocket": "^1.0.34",
@@ -31,9 +36,9 @@
     "eslint": "^8.6.0",
     "eslint-config-airbnb-typescript": "^16.1.0",
     "eslint-plugin-import": "^2.25.4",
+    "pkg": "^5",
     "prettier": "^2.5.1",
-    "typescript": "^4.5.4",
-    "pkg": "^5"
+    "typescript": "^4.5.4"
   },
   "prettier": {
     "singleQuote": true

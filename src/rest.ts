@@ -1,6 +1,9 @@
 import * as fs from 'graceful-fs';
 import axios from 'axios';
+import * as dotenv from 'dotenv';
 import { CLIENT_ID, CLIENT_SECRET, get } from './auth';
+
+dotenv.config();
 
 const outputFile = process.argv[2];
 const apiUrl = process.argv[3];
