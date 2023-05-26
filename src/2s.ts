@@ -15,69 +15,7 @@ const bucketName = process.env.SSI_BUCKET_NAME || '__not_a_bucket__';
 const bucket = (flagBucketName?: string) =>
   storage.bucket(flagBucketName || bucketName);
 
-async function getToken(id?: string, secret?: string): Promise<string> {
-  try {
-    return await get(
-      'hermes-api-external.prod',
-      id || CLIENT_ID,
-      secret || CLIENT_SECRET
-    );
-  } catch (err) {
-    console.error('reqest failed', err);
-    throw new Error('Failed to authenticate request. Contact support.');
-  }
-}
-
-type CommonOptKeys = 'baseUrl' | 'clientId' | 'clientSecret';
-type CommonOpts = Pick<SaveOpts, CommonOptKeys>;
-
-async function getMappingFile(
-  file: string,
-  competitionId: string,
-  useStream?: boolean,
-  opts: CommonOpts = {}
-) {
-  return getFile(
-    `/competitiondata/ssi/${file}.json?competitionId=${competitionId}`,
-    useStream,
-    opts
-  );
-}
-
-async function getGameFile(
-  file: string,
-  gameId: string,
-  useStream?: boolean,
-  opts: CommonOpts = {}
-) {
-  return getFile(
-    `/gamedata/ssi/${file}.json?gameId=${gameId}`,
-    useStream,
-    opts
-  );
-}
-
-async function getFile(
-  path: string,
-  useStream?: boolean,
-  {
-    baseUrl = process.env.SSI_BASE_URL || '',
-    clientId,
-    clientSecret,
-  }: Partial<Pick<SaveOpts, 'baseUrl' | 'clientId' | 'clientSecret'>> = {}
-) {
-  const token = await getToken(clientId, clientSecret);
-
-  return axios.get(baseUrl + path, {
-    ...(useStream ? { responseType: 'stream' } : {}),
-    headers: {
-      'accept-language': 'en-US,en;q=0.9',
-      authorization: `Bearer ${token}`,
-    },
-  });
-}
-
-interface SaveOpts {
+interface Args {
   id: string;
   file: string;
   path?: string;
@@ -88,7 +26,20 @@ interface SaveOpts {
   clientSecret?: string;
 }
 
-async function saveFile({ id, file, path, local, ...rest }: SaveOpts) {
+async function getToken(creds: Pick<Args, 'clientId' | 'clientSecret'>) {
+  try {
+    return await get(
+      'hermes-api-external.prod',
+      creds.clientId || CLIENT_ID,
+      creds.clientSecret || CLIENT_SECRET
+    );
+  } catch (err) {
+    console.error('auth reqest failed', err);
+    throw new Error('Failed to authenticate request. Contact support.');
+  }
+}
+
+async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
   let ext = '.json';
   let isMappingFile = false;
   if (file === 'games' || file === 'teams' || file === 'players') {
@@ -106,26 +57,41 @@ async function saveFile({ id, file, path, local, ...rest }: SaveOpts) {
     throw new Error('invalid file name');
   }
 
-  let res: any;
-  if (isMappingFile) {
-    res = await getMappingFile(file, id, !local, rest);
-  } else {
-    res = await getGameFile(file, id, !local, rest);
-  }
-
   const dir = path || id;
   const filename = file + ext;
 
-  if (!local) {
-    const w = bucket(bucketName)
-      .file(`${dir}/${filename}`)
-      .createWriteStream({ contentType: 'application/json' });
-    res.data.pipe(w);
+  let apiPath = '';
+  if (isMappingFile) {
+    apiPath = `/competitiondata/ssi/${filename}?competitionId=${id}`;
   } else {
-    fs.mkdirSync(dir, { recursive: true });
+    apiPath = `/gamedata/ssi/basketball-${filename}?gameId=${id}`;
+  }
 
-    const f = fs.openSync(`${dir}/${filename}`, 'w');
-    fs.writeSync(f, JSON.stringify(res.data));
+  const token = await getToken(creds);
+
+  try {
+    const res = await axios.get(baseUrl + apiPath, {
+      ...(!local ? { responseType: 'stream' } : {}),
+      headers: {
+        'accept-language': 'en-US,en;q=0.9',
+        authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!local) {
+      const w = bucket(bucketName)
+        .file(`${dir}/${filename}`)
+        .createWriteStream({ contentType: 'application/json' });
+      res.data.pipe(w);
+    } else {
+      fs.mkdirSync(dir, { recursive: true });
+
+      const f = fs.openSync(`${dir}/${filename}`, 'w');
+      fs.writeSync(f, JSON.stringify(res.data));
+    }
+  } catch (err) {
+    console.error('save reqest failed', err);
+    throw new Error('Failed to save file. Contact support.');
   }
 }
 
