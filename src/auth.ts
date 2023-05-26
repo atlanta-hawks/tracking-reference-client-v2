@@ -1,12 +1,15 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import * as dotenv from 'dotenv';
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 import * as http from 'http';
 
 const AUTH_DOMAIN = 'secondspectrum.auth0.com';
 
-const CLIENT_ID = '';
-const CLIENT_SECRET = '';
+dotenv.config();
+
+const CLIENT_ID = process.env.SSI_CLIENT_ID || '';
+const CLIENT_SECRET = process.env.SSI_CLIENT_SECRET || '';
 
 interface FetchTokenInput {
   clientId: string;
