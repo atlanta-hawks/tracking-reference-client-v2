@@ -87,7 +87,7 @@ async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
       fs.mkdirSync(dir, { recursive: true });
 
       const f = fs.openSync(`${dir}/${filename}`, 'w');
-      fs.writeSync(f, JSON.stringify(res.data));
+      fs.writeSync(f, ext === '.jsonl' ? res.data : JSON.stringify(res.data));
     }
   } catch (err) {
     console.error('save reqest failed', err);
