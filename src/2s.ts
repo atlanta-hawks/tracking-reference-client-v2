@@ -11,9 +11,11 @@ dotenv.config();
 
 const storage = new Storage();
 
-const bucketName = process.env.SSI_BUCKET_NAME || '__not_a_bucket__';
+const BASE_URL = process.env.SSI_BASE_URL || '';
+
+const BUCKET_NAME = process.env.SSI_BUCKET_NAME || '__not_a_bucket__';
 const bucket = (flagBucketName?: string) =>
-  storage.bucket(flagBucketName || bucketName);
+  storage.bucket(flagBucketName || BUCKET_NAME);
 
 interface Args {
   id: string;
@@ -39,7 +41,14 @@ async function getToken(creds: Pick<Args, 'clientId' | 'clientSecret'>) {
   }
 }
 
-async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
+async function saveFile({
+  id,
+  file,
+  path,
+  local,
+  baseUrl = BASE_URL,
+  ...creds
+}: Args) {
   let ext = '.json';
   let isMappingFile = false;
   if (file === 'games' || file === 'teams' || file === 'players') {
@@ -50,6 +59,9 @@ async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
     file === 'events' ||
     file === 'tracking'
   ) {
+    if (file === 'advanced_box') {
+      file = 'advanced-box';
+    }
     if (file === 'events' || file === 'tracking') {
       ext = '.jsonl';
     }
@@ -58,13 +70,15 @@ async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
   }
 
   const dir = path || id;
-  const filename = file + ext;
+  const filenameLocal = file + ext;
+  const filenameRemote =
+    (file === 'advanced_box' ? 'advanced-box' : file) + ext;
 
   let apiPath = '';
   if (isMappingFile) {
-    apiPath = `/competitiondata/ssi/${filename}?competitionId=${id}`;
+    apiPath = `/competitiondata/ssi/${filenameRemote}?competitionId=${id}`;
   } else {
-    apiPath = `/gamedata/ssi/basketball-${filename}?gameId=${id}`;
+    apiPath = `/gamedata/ssi/basketball-${filenameRemote}?gameId=${id}`;
   }
 
   const token = await getToken(creds);
@@ -79,14 +93,14 @@ async function saveFile({ id, file, path, local, baseUrl, ...creds }: Args) {
     });
 
     if (!local) {
-      const w = bucket(bucketName)
-        .file(`${dir}/${filename}`)
+      const w = bucket(BUCKET_NAME) // TODO: replace with input flag
+        .file(`${dir}/${filenameLocal}`)
         .createWriteStream({ contentType: 'application/json' });
       res.data.pipe(w);
     } else {
       fs.mkdirSync(dir, { recursive: true });
 
-      const f = fs.openSync(`${dir}/${filename}`, 'w');
+      const f = fs.openSync(`${dir}/${filenameLocal}`, 'w');
       fs.writeSync(f, ext === '.jsonl' ? res.data : JSON.stringify(res.data));
     }
   } catch (err) {
