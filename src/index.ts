@@ -18,7 +18,7 @@ async function main(opts: Opts): Promise<void> {
     await fs.mkdir(opts.folderName);
   }
 
-  const clientFolder = join(opts.folderName, `client`);
+  const clientFolder = join(opts.folderName, 'client');
 
   try {
     await fs.access(clientFolder);

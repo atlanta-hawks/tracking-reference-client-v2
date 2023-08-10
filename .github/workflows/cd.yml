@@ -1,0 +1,50 @@
+name: 'tracking-reference-client-v2: cd'
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v3
+      - name: gcloud auth
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_ARTIFACTS_SA_KEY }}'
+      - name: setup gcloud env
+        uses: google-github-actions/setup-gcloud@v1
+      - name: build and publish
+        shell: bash
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+          nextVersion="v$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | xargs)"
+
+          yarn
+
+          if git show-ref --tags --verify --quiet "refs/tags/$nextVersion"; then
+            echo "$nextVersion exists already, skipping release"
+          else
+            echo "releasing: $nextVersion"
+
+            yarn
+            
+            cat >> .env << 'END'
+            RELEASE_BUCKET=second-spectrum-rest-api
+            END
+
+            node cmd/publish $nextVersion
+            
+            currentVersion=$(git tag -l --sort=-refname "v*" | head -n 1)
+            tagMsg="${{ github.event.head_commit.message }}"$'\n\n'"$(git log --pretty=%B $currentVersion..HEAD)"
+
+            git tag -a $nextVersion -m "$tagMsg"
+            git push --tags
+          fi
