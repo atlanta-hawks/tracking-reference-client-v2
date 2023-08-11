@@ -32,7 +32,7 @@ const DRY_RUN = false;
 		process.exit(1);
 	}
 	const bucket = storage.bucket(bucketName);
-	const manifest = bucket.file('manifest.json');
+	const manifest = bucket.file(FILE_MANIFEST);
 
 	const { current = {} } = await manifest.download();
 
