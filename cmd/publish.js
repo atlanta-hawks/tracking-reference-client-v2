@@ -6,7 +6,7 @@ const stream = require('stream');
 
 const { Storage: GoogleStorage } = require('@google-cloud/storage');
 
-const { version: currentVersion } = require('./package.json');
+const { version: currentVersion } = require('../package.json');
 
 const [, , nextVersion] = process.argv;
 
