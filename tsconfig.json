@@ -22,7 +22,8 @@
     ]
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./yargs.d.ts"
   ],
   "exclude": []
 }
