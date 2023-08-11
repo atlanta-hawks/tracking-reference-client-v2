@@ -16,5 +16,7 @@ jobs:
           node-version: 16.x
       - name: install deps
         run: yarn
+      - name: lint code
+        run: yarn run lint
       - name: build code
         run: yarn run build
