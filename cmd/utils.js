@@ -1,4 +1,4 @@
-export const parseSemver = (val: string) => {
+export const parseSemver = (val) => {
   const parts = val.split('.');
 
   let major = 0;

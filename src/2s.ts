@@ -2,7 +2,7 @@ import { Storage } from '@google-cloud/storage';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as fs from 'graceful-fs';
-import yargs from 'yargs';
+import * as yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { CLIENT_ID, CLIENT_SECRET, get } from './auth';
@@ -114,7 +114,7 @@ yargs(hideBin(process.argv))
   .command(
     'save_file',
     "save one of second spectrum's data files: [games, players, teams, advanced_box, events, markings, tracking]",
-    (yargs_) => {
+    (yargs_: any) => {
       yargs_
         .option('id', { type: 'string', demandOption: true })
         .option('file', { type: 'string', demandOption: true })

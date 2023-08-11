@@ -39,7 +39,7 @@ yargs
   .command(
     'record',
     'Start Data Ingestion',
-    (yargs_) => {
+    (yargs_: any) => {
       yargs_
         .option('gameId', { type: 'string', demandOption: true })
         .option('folderName', { type: 'string', demandOption: true })
@@ -62,7 +62,7 @@ yargs
           type: 'boolean',
           default: false,
         })
-        .check((argv, _) => {
+        .check((argv: any, _: any) => {
           const position = argv.position;
           if (position) {
             const isMatch = position.match(MESSAGE_ID_REGEX) ? true : false;
