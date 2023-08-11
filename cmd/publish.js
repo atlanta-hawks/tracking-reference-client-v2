@@ -8,7 +8,11 @@ const { Storage: GoogleStorage } = require('@google-cloud/storage');
 
 const { version: currentVersion } = require('../package.json');
 
-const [, , nextVersion] = process.argv;
+const [, , nextVersionArg] = process.argv;
+
+const nextVersion = nextVersionArg.startsWith('v')
+	? nextVersionArg.substring(1)
+	: nextVersionArg;
 
 dotenv.config();
 
@@ -64,7 +68,7 @@ const DRY_RUN = false;
 
 	if (!nextVersion.startsWith(BASE_VERSION)) {
 		console.log(
-			`the next version must include the base version: ${BASE_VERSION}`
+			`the next version, ${nextVersion}, must include the base version: ${BASE_VERSION}`
 		);
 		process.exit(1);
 	}
