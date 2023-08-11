@@ -14,7 +14,28 @@ those changes are reflected in the file `src/2s.ts`, which otherwise started as 
 
 ## distribution
 
-changes to this codebase should be put through a standard PR process. on merge to `main`, the cd pipeline will build and package the binary and then push it to our `artifacts` project in gcp to a public bucket.
+changes to this codebase should be put through a standard PR process. on merge to `main`, the cd pipeline will build and package the binary and then push it to our `artifacts-public` project in gcp to a public bucket.
+
+### make a release
+
+first, get a ticket number for the release, and checkout that branch:
+
+```cmd
+$ git checkout -b bbops_xyz
+```
+
+run the release script:
+
+```cmd
+$ yarn run release <release_type>
+```
+
+`<release_type>` above can be any semver value (e.g. 1.0.1-tag.0) or one of the following reserved words:
+
+- `major`
+- `minor`
+- `patch`
+- `bump`
 
 ## differences
 

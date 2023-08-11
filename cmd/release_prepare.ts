@@ -10,7 +10,7 @@ import { formatSemver, parseSemver } from './utils';
 
 console.log('release: prepare');
 
-const { _: args } = yargs(hideBin(process.argv)).parseSync();
+const { _: args } = (yargs(hideBin(process.argv)) as any).parse();
 let nextVersion = String(args[0]);
 let staticVersion = false;
 
