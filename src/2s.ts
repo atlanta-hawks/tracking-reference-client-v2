@@ -103,8 +103,14 @@ async function saveFile({
       const f = fs.openSync(`${dir}/${filenameLocal}`, 'w');
       fs.writeSync(f, ext === '.jsonl' ? res.data : JSON.stringify(res.data));
     }
-  } catch (err) {
-    console.error('save reqest failed', err);
+  } catch (err: any) {
+    const httpMethod = err?.request?.method || '<http_method>';
+    console.log(`ss client failed to ${httpMethod}: ${apiPath}`);
+
+    const errStatus = err?.response?.status || 0;
+    const errRes = err?.response?.statusText || 'something bad happened';
+    console.error(`${errStatus} ${errRes}`, err?.response?.data);
+
     throw new Error('Failed to save file. Contact support.');
   }
 }
