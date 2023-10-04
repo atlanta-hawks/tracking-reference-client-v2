@@ -59,9 +59,6 @@ async function saveFile({
     file === 'events' ||
     file === 'tracking'
   ) {
-    if (file === 'advanced_box') {
-      file = 'advanced-box';
-    }
     if (file === 'events' || file === 'tracking') {
       ext = '.jsonl';
     }
@@ -88,8 +85,8 @@ async function saveFile({
       ...(!local ? { responseType: 'stream' } : {}),
       headers: {
         'accept-language': 'en-US,en;q=0.9',
-        authorization: `Bearer ${token}`,
-      },
+        authorization: `Bearer ${token}`
+      }
     });
 
     if (!local) {
