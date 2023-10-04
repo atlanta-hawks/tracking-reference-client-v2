@@ -59,9 +59,6 @@ async function saveFile({
     file === 'events' ||
     file === 'tracking'
   ) {
-    if (file === 'advanced_box') {
-      file = 'advanced-box';
-    }
     if (file === 'events' || file === 'tracking') {
       ext = '.jsonl';
     }
