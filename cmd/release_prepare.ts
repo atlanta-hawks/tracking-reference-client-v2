@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import { execSync, spawnSync } from 'child_process';
+import * as fs from 'graceful-fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -42,11 +43,15 @@ const commitMsg = `"chore(${ticket}): release ${tagName}"`;
 console.log(`releasing: ${tagName} (${ticket})`);
 
 if (nextVersion !== currentVersion) {
+  fs.writeFileSync(
+    './src/version.ts',
+    `export const VERSION = '${nextVersion}';` + '\n'
+  );
   execSync(`npm version ${nextVersion} --no-git-tag-version -m ${commitMsg}`);
   console.log('release: version bumped');
 }
 
-spawnSync('git', ['add', '.'], { stdio: 'inherit' });
+spawnSync('git', ['add', '-A'], { stdio: 'inherit' });
 execSync('git commit -m ' + commitMsg);
 
 console.log('release: done');
