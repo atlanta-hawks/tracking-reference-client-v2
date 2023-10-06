@@ -6,6 +6,7 @@ import * as yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { CLIENT_ID, CLIENT_SECRET, get } from './auth';
+import { VERSION } from './version';
 
 dotenv.config();
 
@@ -114,6 +115,7 @@ async function saveFile({
 
 yargs(hideBin(process.argv))
   .scriptName('second-spectrum')
+  .version(VERSION)
   .command(
     'save_file',
     "save one of second spectrum's data files: [games, players, teams, advanced_box, events, markings, tracking]",
