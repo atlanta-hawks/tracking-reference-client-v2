@@ -51,7 +51,7 @@ if (nextVersion !== currentVersion) {
   console.log('release: version bumped');
 }
 
-spawnSync('git', ['add', '-A'], { stdio: 'inherit' });
+spawnSync('git', ['add', '.'], { stdio: 'inherit' });
 execSync('git commit -m ' + commitMsg);
 
 console.log('release: done');
