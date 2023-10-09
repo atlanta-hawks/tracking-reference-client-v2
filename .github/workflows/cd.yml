@@ -2,7 +2,6 @@ name: 'tracking-reference-client-v2: cd'
 
 on:
   push:
-    branches: ['main']
 
 jobs:
   build:
@@ -16,31 +15,18 @@ jobs:
           credentials_json: ${{ secrets.GCP_ARTIFACTS_PUBLIC_SA_KEY }}
       - name: setup gcloud env
         uses: google-github-actions/setup-gcloud@v1
-      - name: build and publish
-        shell: bash
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-          nextVersion="v$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | xargs)"
-
-          yarn
-
-          if git show-ref --tags --verify --quiet "refs/tags/$nextVersion"; then
-            echo "$nextVersion exists already, skipping release"
-          else
-            echo "releasing: $nextVersion"
-
-            yarn
-            
-            touch .env
-            echo RELEASE_BUCKET=second-spectrum-cli >> .env
-
-            node cmd/publish $nextVersion
-            
-            currentVersion=$(git tag -l --sort=-refname "v*" | head -n 1)
-            tagMsg="${{ github.event.head_commit.message }}"$'\n\n'"$(git log --pretty=%B $currentVersion..HEAD)"
-
-            git tag -a $nextVersion -m "$tagMsg"
-            git push --tags
-          fi
+      - name: Install ldid for codesigning
+        uses: MOZGIII/install-ldid-action@v1
+        with:
+          tag: v2.1.5-procursus2
+      - name: Set up QEMU for emulation
+        uses: docker/setup-qemu-action@v3
+      - name: install dependecies
+        run: yarn
+      - name: build linux amd64 binary
+        run: yarn build && yarn pkg
+      - name: persist artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: tracking-reference-client-v2
+          path: lib/bin

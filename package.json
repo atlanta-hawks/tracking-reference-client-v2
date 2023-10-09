@@ -12,6 +12,7 @@
     "prettier": "prettier --loglevel error --write './src/**/*.ts'",
     "prepkg": "yarn run build",
     "pkg": "yarn run pkg:only",
+    "pkg:linux:amd64": "pkg lib/2s.js --targets=node16-linux-x64 --out-path lib/bin",
     "pkg:only": "pkg lib/2s.js --targets=node16-macos-arm64,node16-macos-x64,node16-linux-x64,node16-win-x64 --out-path lib/bin",
     "release": "ts-node --project tsconfig_cmd.json ./cmd/release_prepare.ts"
   },
