@@ -1,1 +1,1 @@
-export const VERSION = '0.1.0-hawks.5';
+export const VERSION = '0.1.0-hawks.6';
