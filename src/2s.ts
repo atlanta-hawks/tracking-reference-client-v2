@@ -86,8 +86,8 @@ async function saveFile({
       ...(!local ? { responseType: 'stream' } : {}),
       headers: {
         'accept-language': 'en-US,en;q=0.9',
-        authorization: `Bearer ${token}`
-      }
+        authorization: `Bearer ${token}`,
+      },
     });
 
     if (!local) {
