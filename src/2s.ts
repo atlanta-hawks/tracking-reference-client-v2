@@ -86,8 +86,8 @@ async function saveFile({
       ...(!local ? { responseType: 'stream' } : {}),
       headers: {
         'accept-language': 'en-US,en;q=0.9',
-        authorization: `Bearer ${token}`,
-      },
+        authorization: `Bearer ${token}`
+      }
     });
 
     if (!local) {
@@ -106,8 +106,25 @@ async function saveFile({
     console.log(`ss client failed to ${httpMethod}: ${apiPath}`);
 
     const errStatus = err?.response?.status || 0;
-    const errRes = err?.response?.statusText || 'something bad happened';
-    console.error(`${errStatus} ${errRes}`, err?.response?.data);
+    const errRes = err?.response?.statusText || err?.message;
+
+    let errOut: unknown;
+    if (local) {
+      errOut = err?.response?.data || 'no data available';
+    } else {
+      errOut = await new Promise((resolve) => {
+        let payload = '';
+        err.response.data.setEncoding('utf8');
+        err.response.data
+          .on('data', (data: any) => {
+            payload += data;
+          })
+          .on('end', () => {
+            resolve(JSON.parse(payload));
+          });
+      });
+    }
+    console.error(`${errStatus} ${errRes || 'something bad happened'}`, errOut);
 
     throw new Error('Failed to save file. Contact support.');
   }
