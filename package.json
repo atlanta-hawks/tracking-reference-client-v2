@@ -12,7 +12,7 @@
     "prettier": "prettier --loglevel error --write './src/**/*.ts'",
     "prepkg": "yarn run build",
     "pkg": "yarn run pkg:only",
-    "pkg:only": "pkg lib/2s.js --targets=node16-macos-arm64,node16-macos-x64,node16-linux-x64,node16-win-x64 --out-path lib/bin",
+    "pkg:only": "pkg lib/2s.js --targets=node18-macos-arm64,node18-macos-x64,node18-linux-x64,node18-win-x64 --out-path lib/bin",
     "release": "ts-node --project tsconfig_cmd.json ./cmd/release_prepare.ts"
   },
   "author": "Second Spectrum",
