@@ -117,18 +117,19 @@ const DRY_RUN = false;
 		const currentPath = `current/${binName}`;
 		const releasePath = `releases/${nextVersion}/${binName}`;
 
+		const uploadMetadata = { contentType: "application/octet-stream" };
 		if (DRY_RUN) {
 			console.log('not uploading: ' + currentPath);
 		} else {
 			console.log('uploading: ' + currentPath);
-			await bucket.upload(localPath, { destination: currentPath });
+			await bucket.upload(localPath, { destination: currentPath, metadata: uploadMetadata });
 		}
 
 		if (DRY_RUN) {
 			console.log('not uploading: ' + releasePath);
 		} else {
 			console.log('uploading: ' + releasePath);
-			await bucket.upload(localPath, { destination: releasePath });
+			await bucket.upload(localPath, { destination: releasePath, metadata: uploadMetadata });
 		}
 		nextManifest.current.links[tag] = releasePath;
 	}
